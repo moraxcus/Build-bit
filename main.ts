@@ -222,8 +222,8 @@ namespace BuildBit {
     //===========================================================================
 
     /**
-     * *****************************************************************
-     * @param index
+     * Neopixel.
+     * @param num selected speed, eg: 4
      */
     //% subcategory=LED
     //% blockId=Build-Bit-Neopixel-pin
@@ -279,6 +279,11 @@ namespace BuildBit {
 
     }
 
+    /**
+     * Motor move.
+     * Speed = 0 - 100
+     * @param speed selected speed, eg: 30
+     */
     //% subcategory=Motor
     //% blockId=Build-Bit-MotorRun 
     //% block="Motor |%index| run |%dir| at speed |%speed"
@@ -332,7 +337,11 @@ namespace BuildBit {
 
     }
 
-
+    /**
+     * Motor move.
+     * Speed = 0 - 100
+     * @param speed selected speed, eg: 30
+     */
     //% subcategory=Motor
     //% blockId=Build-Bit-MotorRunDual
     //% block="Motor |%index1| and |%index2| run |%dir| at speed |%speed|"
