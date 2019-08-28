@@ -2,15 +2,20 @@
 /*===========================================================================
   Pins
     Neopixel            P12
+    Buzzer              P0
  
   Motor
     Servo_S1            IIC_Channel 3
     Servo_S2            IIC_Channel 4
     Servo_S3            IIC_Channel 5
-    LeftMotor_A         IIC_Channel 12
-    LeftMotor_B         IIC_Channel 13
-    RightMotor_A        IIC_Channel 14
-    RightMotor_B        IIC_Channel 15
+
+    Motor_M1            IIC_Channel 8,
+    Motor_M2            IIC_Channel 10,
+    Motor_M3            IIC_Channel 12,
+    Motor_M4            IIC_Channel 14
+
+    Stepper_B1          IIC_Channel 8,9,10,11
+    Stepper_B2          IIC_Channel 12,13,14,15
 
     Stepper motor suggested Model: 28BYJ-48
 ===========================================================================*/
@@ -221,15 +226,14 @@ namespace BuildBit {
      * @param index
      */
     //% subcategory=LED
-    //% blockId=SuperBit_RGB_Program 
-    //% block="RGB_Program"
+    //% blockId=Build-Bit-Neopixel-pin
+    //% block="Build:bit Neopixel at pin P12 with |%num| LEDs as RGB(GRB format)"
     //% weight=99
     //% blockGap=10
-    //% name.fieldEditor="gridpicker" name.fieldOptions.columns=4
-    export function RGB_Program(): neopixel.Strip {
+    export function RGB_Program(num: number): neopixel.Strip {
 
         if (!BBStrip) {
-            BBStrip = neopixel.create(DigitalPin.P12, 4, NeoPixelMode.RGB);
+            BBStrip = neopixel.create(DigitalPin.P12, num, NeoPixelMode.RGB);
         }
         return BBStrip;
     }
@@ -241,10 +245,9 @@ namespace BuildBit {
     //% subcategory=Motor
     //% blockId=Build-Bit-Servo 
     //% block="Servo |%num| to value |%value|°"
-    //% weight=97
+    //% weight=89
     //% blockGap=10
     //% num.min=1 num.max=4 value.min=0 value.max=180
-    //% name.fieldEditor="gridpicker" name.fieldOptions.columns=20
     export function Servo(num: enServo, value: number): void {
 
         // 50hz: 20,000 us
@@ -254,58 +257,16 @@ namespace BuildBit {
 
     }
 
-    /*
-    //% blockId=SuperBit_Servo2 block="Servo(270°)|num %num|value %value"
-    //% weight=96
-    //% blockGap=10
-    //% num.min=1 num.max=4 value.min=0 value.max=270
-    //% name.fieldEditor="gridpicker" name.fieldOptions.columns=20
-    export function Servo2(num: enServo, value: number): void {
-
-        // 50hz: 20,000 us
-        let newvalue = Math.map(value, 0, 270, 0, 180);
-        let us = (newvalue * 1800 / 180 + 600); // 0.6 ~ 2.4
-        let pwm = us * 4096 / 20000;
-        setPwm(num, 0, pwm);
-
-    }
-
-    //% blockId=SuperBit_Servo3 block="Servo(360°)|num %num|pos %pos|value %value"
-    //% weight=96
-    //% blockGap=10
-    //% num.min=1 num.max=4 value.min=0 value.max=90
-    //% name.fieldEditor="gridpicker" name.fieldOptions.columns=20
-    export function Servo3(num: enServo, pos: enPos, value: number): void {
-
-        // 50hz: 20,000 us
-
-        if (pos == enPos.stop) {
-            let us = (86 * 1800 / 180 + 600); // 0.6 ~ 2.4
-            let pwm = us * 4096 / 20000;
-            setPwm(num, 0, pwm);
-        }
-        else if (pos == enPos.forward) { //0-90 -> 90 - 0
-            let us = ((90 - value) * 1800 / 180 + 600); // 0.6 ~ 2.4
-            let pwm = us * 4096 / 20000;
-            setPwm(num, 0, pwm);
-        }
-        else if (pos == enPos.reverse) { //0-90 -> 90 -180
-            let us = ((90 + value) * 1800 / 180 + 600); // 0.6 ~ 2.4
-            let pwm = us * 4096 / 20000;
-            setPwm(num, 0, pwm);
-        }
-    }
-    */
 
     //===========================================================================
     //  Motor
     //===========================================================================
 
     //% subcategory=Motor
-    //% blockId=SuperBit_MotorStopAll 
+    //% blockId=Build-Bit-MotorStopAll
     //% block="Motor Stop All"
-    //% weight=
-    //% blockGap=50
+    //% weight= 88
+    //% blockGap=10
     export function MotorStopAll(): void {
         if (!initialized) {
             initPCA9685()
@@ -321,7 +282,8 @@ namespace BuildBit {
     //% subcategory=Motor
     //% blockId=Build-Bit-MotorRun 
     //% block="Motor |%index| run |%dir| at speed |%speed"
-    //% weight=
+    //% weight=87
+    //% blockGap=10
     //% speed.min=0 speed.max=100
     export function MotorRun(index: enMotors, dir: enPos, speed: number): void {
         if (!initialized) {
@@ -374,9 +336,10 @@ namespace BuildBit {
     //% subcategory=Motor
     //% blockId=Build-Bit-MotorRunDual
     //% block="Motor |%index1| and |%index2| run |%dir| at speed |%speed|"
-    //% weight=
+    //% weight=86
     //% blockGap=10
     //% speed.min=0 speed.max=100
+    //% name.fieldEditor="gridpicker" name.fieldOptions.columns=20
     export function MotorRunDual(index1: enMotors, index2: enMotors, dir: enPos, speed: number): void {
         if (!initialized) {
             initPCA9685()
@@ -452,11 +415,14 @@ namespace BuildBit {
         }
     }
 
+    //===========================================================================
+    //  Stepper Motor
+    //===========================================================================
 
     //% subcategory=Motor
     //% blockId=Build-Bit-StepperDegree
     //% block="Stepper Motor |%index| turn |%degree|°"
-    //% weight=
+    //% weight=85
     //% blockGap=10
     export function StepperDegree(index: enSteppers, degree: number): void {
         if (!initialized) {
@@ -471,7 +437,7 @@ namespace BuildBit {
     //% subcategory=Motor
     //% blockId=Build-Bit-StepperTurn
     //% block="Stepper Motor |%index| turn |%turn| circle"
-    //% weight=
+    //% weight=84
     //% blockGap=10
     export function StepperTurn(index: enSteppers, turn: enTurns): void {
         let degree = turn;
@@ -481,7 +447,7 @@ namespace BuildBit {
     //% subcategory=Motor
     //% blockId=Build-Bit_StepperDual
     //% block="Dual Stepper Motor B1 |%degree1|° and B2 |%degree2|°"
-    //% weight=88
+    //% weight=83
     //% blockGap=10
     export function StepperDual(degree1: number, degree2: number): void {
         if (!initialized) {
@@ -504,14 +470,5 @@ namespace BuildBit {
 
         MotorStopAll()
     }
-
-    /*
-    //% blockId=SuperBit_PWMOFF 
-    //% block="PWM OFF|%index"
-    //% weight=87
-    export function PWMOFF(index: number): void {
-        setPwm(index, 0, 0);
-    }
-    */
 
 }
