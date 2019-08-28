@@ -1,12 +1,23 @@
-﻿/*
-Copyright (C): 2010-2019, Shenzhen Yahboom Tech
-modified from liusen
-load dependency
-"SuperBit": "file:../pxt-Superbit"
-*/
 
-//% color="#ECA40D" weight=20 icon="\uf085"
-namespace SuperBit {
+/*===========================================================================
+  Pins
+    Neopixel            P12
+ 
+  Motor
+    Servo_S1            IIC_Channel 3
+    Servo_S2            IIC_Channel 4
+    Servo_S3            IIC_Channel 5
+    LeftMotor_A         IIC_Channel 12
+    LeftMotor_B         IIC_Channel 13
+    RightMotor_A        IIC_Channel 14
+    RightMotor_B        IIC_Channel 15
+===========================================================================*/
+
+/**
+ * Build:bit blocks
+ */
+//% weight=100 color=#FF4C26 icon="\uf0fb" block="Build:Bit"
+namespace BuildBit {
 
     const PCA9685_ADD = 0x40
     const MODE1 = 0x00
@@ -40,47 +51,37 @@ namespace SuperBit {
     const STP_CHD_H = 1023
 
     let initialized = false
-    let yahStrip: neopixel.Strip;
+    let BBStrip: neopixel.Strip;
 
-   
-    export enum enMusic {
 
-        dadadum = 0,
-        entertainer,
-        prelude,
-        ode,
-        nyan,
-        ringtone,
-        funk,
-        blues,
+    //===========================================================================
+    //  Motor
+    //===========================================================================
 
-        birthday,
-        wedding,
-        funereal,
-        punchline,
-        baddy,
-        chase,
-        ba_ding,
-        wawawawaa,
-        jump_up,
-        jump_down,
-        power_up,
-        power_down
-    }
-    
-
-    
     export enum enSteppers {
         B1 = 0x1,
         B2 = 0x2
     }
-    export enum enPos { 
-        //% blockId="forward" block="forward"
+    export enum enPos {
+        //% blockId="forward" block="Forward"
         forward = 1,
-        //% blockId="reverse" block="reverse"
+        //% blockId="reverse" block="Reverse"
+        reverse = 2
+    }
+
+    export enum enPos2 {
+        //% blockId="forward" block="Forward"
+        forward = 1,
+        //% blockId="reverse" block="Reverse"
         reverse = 2,
-        //% blockId="stop" block="stop"
-        stop = 3
+        //% blockId="left" block="Turn Left"
+        turn_left = 3,
+        //% blockId="right" block="Turn Right"
+        turn_right = 4,
+        //% blockId="rot-left" block="Rotate Left"
+        rot_left = 5,
+        //% blockId="rot-right" block="Rotate Right"
+        rot_right = 6
     }
 
     export enum enTurns {
@@ -99,9 +100,9 @@ namespace SuperBit {
         //% blockId="T5B0" block="5"
         T5B0 = 1800
     }
-    
+
     export enum enServo {
-        
+
         S1 = 0,
         S2,
         S3,
@@ -206,52 +207,38 @@ namespace SuperBit {
         setPwm(index, 0, 0);
         setPwm(index + 1, 0, 0);
     }
+
+
+
+    //===========================================================================
+    //  LED
+    //===========================================================================
+
     /**
      * *****************************************************************
      * @param index
-     */   
-    //% blockId=SuperBit_RGB_Program block="RGB_Program"
+     */
+    //% subcategory=LED
+    //% blockId=SuperBit_RGB_Program 
+    //% block="RGB_Program"
     //% weight=99
     //% blockGap=10
     //% name.fieldEditor="gridpicker" name.fieldOptions.columns=4
     export function RGB_Program(): neopixel.Strip {
-         
-        if (!yahStrip) {
-            yahStrip = neopixel.create(DigitalPin.P12, 4, NeoPixelMode.RGB);
+
+        if (!BBStrip) {
+            BBStrip = neopixel.create(DigitalPin.P12, 4, NeoPixelMode.RGB);
         }
-        return yahStrip;  
-    } 
-    
-    //% blockId=SuperBit_Music block="Music|%index"
-    //% weight=98
-    //% blockGap=10
-    //% name.fieldEditor="gridpicker" name.fieldOptions.columns=4
-    export function Music(index: enMusic): void {
-        switch (index) {
-            case enMusic.dadadum: music.beginMelody(music.builtInMelody(Melodies.Dadadadum), MelodyOptions.Once); break;
-            case enMusic.birthday: music.beginMelody(music.builtInMelody(Melodies.Birthday), MelodyOptions.Once); break;
-            case enMusic.entertainer: music.beginMelody(music.builtInMelody(Melodies.Entertainer), MelodyOptions.Once); break;
-            case enMusic.prelude: music.beginMelody(music.builtInMelody(Melodies.Prelude), MelodyOptions.Once); break;
-            case enMusic.ode: music.beginMelody(music.builtInMelody(Melodies.Ode), MelodyOptions.Once); break;
-            case enMusic.nyan: music.beginMelody(music.builtInMelody(Melodies.Nyan), MelodyOptions.Once); break;
-            case enMusic.ringtone: music.beginMelody(music.builtInMelody(Melodies.Ringtone), MelodyOptions.Once); break;
-            case enMusic.funk: music.beginMelody(music.builtInMelody(Melodies.Funk), MelodyOptions.Once); break;
-            case enMusic.blues: music.beginMelody(music.builtInMelody(Melodies.Blues), MelodyOptions.Once); break;
-            case enMusic.wedding: music.beginMelody(music.builtInMelody(Melodies.Wedding), MelodyOptions.Once); break;
-            case enMusic.funereal: music.beginMelody(music.builtInMelody(Melodies.Funeral), MelodyOptions.Once); break;
-            case enMusic.punchline: music.beginMelody(music.builtInMelody(Melodies.Punchline), MelodyOptions.Once); break;
-            case enMusic.baddy: music.beginMelody(music.builtInMelody(Melodies.Baddy), MelodyOptions.Once); break;
-            case enMusic.chase: music.beginMelody(music.builtInMelody(Melodies.Chase), MelodyOptions.Once); break;
-            case enMusic.ba_ding: music.beginMelody(music.builtInMelody(Melodies.BaDing), MelodyOptions.Once); break;
-            case enMusic.wawawawaa: music.beginMelody(music.builtInMelody(Melodies.Wawawawaa), MelodyOptions.Once); break;
-            case enMusic.jump_up: music.beginMelody(music.builtInMelody(Melodies.JumpUp), MelodyOptions.Once); break;
-            case enMusic.jump_down: music.beginMelody(music.builtInMelody(Melodies.JumpDown), MelodyOptions.Once); break;
-            case enMusic.power_up: music.beginMelody(music.builtInMelody(Melodies.PowerUp), MelodyOptions.Once); break;
-            case enMusic.power_down: music.beginMelody(music.builtInMelody(Melodies.PowerDown), MelodyOptions.Once); break;
-        }
+        return BBStrip;
     }
-    
-    //% blockId=SuperBit_Servo block="Servo(180°)|num %num|value %value"
+
+    //===========================================================================
+    //  Motor - Servo
+    //===========================================================================
+
+    //% subcategory=Motor
+    //% blockId=Build-Bit-Servo 
+    //% block="Servo |%num| to value |%value|°"
     //% weight=97
     //% blockGap=10
     //% num.min=1 num.max=4 value.min=0 value.max=180
@@ -265,6 +252,7 @@ namespace SuperBit {
 
     }
 
+    /*
     //% blockId=SuperBit_Servo2 block="Servo(270°)|num %num|value %value"
     //% weight=96
     //% blockGap=10
@@ -288,78 +276,161 @@ namespace SuperBit {
     export function Servo3(num: enServo, pos: enPos, value: number): void {
 
         // 50hz: 20,000 us
-        
+
         if (pos == enPos.stop) {
             let us = (86 * 1800 / 180 + 600); // 0.6 ~ 2.4
             let pwm = us * 4096 / 20000;
             setPwm(num, 0, pwm);
         }
-        else if(pos == enPos.forward){ //0-90 -> 90 - 0
-            let us = ((90-value) * 1800 / 180 + 600); // 0.6 ~ 2.4
+        else if (pos == enPos.forward) { //0-90 -> 90 - 0
+            let us = ((90 - value) * 1800 / 180 + 600); // 0.6 ~ 2.4
             let pwm = us * 4096 / 20000;
             setPwm(num, 0, pwm);
         }
-        else if(pos == enPos.reverse){ //0-90 -> 90 -180
-            let us = ((90+value) * 1800 / 180 + 600); // 0.6 ~ 2.4
+        else if (pos == enPos.reverse) { //0-90 -> 90 -180
+            let us = ((90 + value) * 1800 / 180 + 600); // 0.6 ~ 2.4
             let pwm = us * 4096 / 20000;
             setPwm(num, 0, pwm);
         }
-
-       
-
     }
-    //% blockId=SuperBit_MotorRun block="Motor|%index|speed(-255~255) %speed"
+    */
+
+    //===========================================================================
+    //  Motor
+    //===========================================================================
+
+    //% subcategory=Motor
+    //% blockId=Build-Bit-MotorRun 
+    //% block="Motor |%index| run |%dir| at speed |%speed"
     //% weight=93
-    //% speed.min=-255 speed.max=255
-    //% name.fieldEditor="gridpicker" name.fieldOptions.columns=4
-    export function MotorRun(index: enMotors, speed: number): void {
+    //% speed.min=0 speed.max=100
+    export function MotorRun(index: enMotors, dir: enPos, speed: number): void {
         if (!initialized) {
             initPCA9685()
         }
-        speed = speed * 16; // map 255 to 4096
+
+        speed = Math.clamp(0, 100, speed)
+        speed = Math.abs(4095 * (speed / 100))
+
         if (speed >= 4096) {
             speed = 4095
         }
-        if (speed <= -4096) {
-            speed = -4095
+        if (speed <= 350) {
+            speed = 350
         }
 
         let a = index
         let b = index + 1
-        
-        if (a > 10)
-        {
-            if (speed >= 0) {
+
+        if (a > 10) {
+            if (dir == 1) {
                 setPwm(a, 0, speed)
                 setPwm(b, 0, 0)
-            } else {
+            } else if (dir == 2) {
                 setPwm(a, 0, 0)
-                setPwm(b, 0, -speed)
+                setPwm(b, 0, speed)
+            }
+            else {
+                setPwm(a, 0, 0)
+                setPwm(b, 0, 0)
             }
         }
-        else { 
-            if (speed >= 0) {
+        else {
+            if (dir == 1) {
                 setPwm(b, 0, speed)
                 setPwm(a, 0, 0)
-            } else {
+            } else if (dir == 2) {
                 setPwm(b, 0, 0)
-                setPwm(a, 0, -speed)
+                setPwm(a, 0, speed)
+            }
+            else {
+                setPwm(a, 0, 0)
+                setPwm(b, 0, 0)
             }
         }
-        
+
     }
-    
 
 
-    //% blockId=SuperBit_MotorRunDual block="Motor|%motor1|speed %speed1|%motor2|speed %speed2"
-    //% weight=92
-    //% blockGap=50
-    //% speed1.min=-255 speed1.max=255
-    //% speed2.min=-255 speed2.max=255
-    //% name.fieldEditor="gridpicker" name.fieldOptions.columns=2
-    export function MotorRunDual(motor1: enMotors, speed1: number, motor2: enMotors, speed2: number): void {
-        MotorRun(motor1, speed1);
-        MotorRun(motor2, speed2);
+    //% subcategory=Motor
+    //% blockId=Build-Bit-MotorRunDual
+    //% block="Motor |%index1| and |%index2| run |%dir| at speed |%speed|"
+    //% weight=
+    //% blockGap=10
+    //% speed.min=0 speed.max=100
+    export function MotorRunDual(index1: enMotors, index2: enMotors, dir: enPos, speed: number): void {
+        if (!initialized) {
+            initPCA9685()
+        }
+
+        speed = Math.clamp(0, 100, speed)
+        speed = Math.abs(4095 * (speed / 100))
+
+        if (speed >= 4096) {
+            speed = 4095
+        }
+        if (speed <= 350) {
+            speed = 350
+        }
+
+        let a = index1
+        let b = index1 + 1
+        let c = index2
+        let d = index2 + 1
+
+        if (a > 10) {
+            if (dir == 1) {
+                setPwm(a, 0, speed)
+                setPwm(b, 0, 0)
+            } else if (dir == 2) {
+                setPwm(a, 0, 0)
+                setPwm(b, 0, speed)
+            }
+            else {
+                setPwm(a, 0, 0)
+                setPwm(b, 0, 0)
+            }
+        }
+        else {
+            if (dir == 1) {
+                setPwm(b, 0, speed)
+                setPwm(a, 0, 0)
+            } else if (dir == 2) {
+                setPwm(b, 0, 0)
+                setPwm(a, 0, speed)
+            }
+            else {
+                setPwm(a, 0, 0)
+                setPwm(b, 0, 0)
+            }
+        }
+
+        if (c > 10) {
+            if (dir == 1) {
+                setPwm(c, 0, speed)
+                setPwm(d, 0, 0)
+            } else if (dir == 2) {
+                setPwm(c, 0, 0)
+                setPwm(d, 0, speed)
+            }
+            else {
+                setPwm(c, 0, 0)
+                setPwm(d, 0, 0)
+            }
+        }
+        else {
+            if (dir == 1) {
+                setPwm(d, 0, speed)
+                setPwm(c, 0, 0)
+            } else if (dir == 2) {
+                setPwm(d, 0, 0)
+                setPwm(c, 0, speed)
+            }
+            else {
+                setPwm(c, 0, 0)
+                setPwm(d, 0, 0)
+            }
+        }
     }
 
     //% blockId=SuperBit_StepperDegree block="Stepper Motor(28BYJ-48) |%index|degree %degree"
@@ -381,12 +452,12 @@ namespace SuperBit {
         if (!initialized) {
             initPCA9685()
         }
-        
+
         stopMotor(enMotors.M1);
         stopMotor(enMotors.M2);
         stopMotor(enMotors.M3);
         stopMotor(enMotors.M4);
-        
+
     }
 
     //% blockId=SuperBit_StepperTurn block="Stepper Motor(28BYJ-48) |%index|turn %turn|circle"
