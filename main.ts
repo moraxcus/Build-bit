@@ -11,6 +11,8 @@
     LeftMotor_B         IIC_Channel 13
     RightMotor_A        IIC_Channel 14
     RightMotor_B        IIC_Channel 15
+
+    Stepper motor suggested Model: 28BYJ-48
 ===========================================================================*/
 
 /**
@@ -300,9 +302,26 @@ namespace BuildBit {
     //===========================================================================
 
     //% subcategory=Motor
+    //% blockId=SuperBit_MotorStopAll 
+    //% block="Motor Stop All"
+    //% weight=
+    //% blockGap=50
+    export function MotorStopAll(): void {
+        if (!initialized) {
+            initPCA9685()
+        }
+
+        stopMotor(enMotors.M1);
+        stopMotor(enMotors.M2);
+        stopMotor(enMotors.M3);
+        stopMotor(enMotors.M4);
+
+    }
+
+    //% subcategory=Motor
     //% blockId=Build-Bit-MotorRun 
     //% block="Motor |%index| run |%dir| at speed |%speed"
-    //% weight=93
+    //% weight=
     //% speed.min=0 speed.max=100
     export function MotorRun(index: enMotors, dir: enPos, speed: number): void {
         if (!initialized) {
@@ -433,8 +452,12 @@ namespace BuildBit {
         }
     }
 
-    //% blockId=SuperBit_StepperDegree block="Stepper Motor(28BYJ-48) |%index|degree %degree"
-    //% weight=90
+
+    //% subcategory=Motor
+    //% blockId=Build-Bit-StepperDegree
+    //% block="Stepper Motor |%index| turn |%degree|°"
+    //% weight=
+    //% blockGap=10
     export function StepperDegree(index: enSteppers, degree: number): void {
         if (!initialized) {
             initPCA9685()
@@ -445,30 +468,21 @@ namespace BuildBit {
         MotorStopAll()
     }
 
-    //% blockId=SuperBit_MotorStopAll block="Motor Stop All"
-    //% weight=91
-    //% blockGap=50
-    export function MotorStopAll(): void {
-        if (!initialized) {
-            initPCA9685()
-        }
-
-        stopMotor(enMotors.M1);
-        stopMotor(enMotors.M2);
-        stopMotor(enMotors.M3);
-        stopMotor(enMotors.M4);
-
-    }
-
-    //% blockId=SuperBit_StepperTurn block="Stepper Motor(28BYJ-48) |%index|turn %turn|circle"
-    //% weight=89
+    //% subcategory=Motor
+    //% blockId=Build-Bit-StepperTurn
+    //% block="Stepper Motor |%index| turn |%turn| circle"
+    //% weight=
+    //% blockGap=10
     export function StepperTurn(index: enSteppers, turn: enTurns): void {
         let degree = turn;
         StepperDegree(index, degree);
     }
 
-    //% blockId=SuperBit_StepperDual block="Dual Stepper Motor(Degree) |M1 %degree1| M2 %degree2"
+    //% subcategory=Motor
+    //% blockId=Build-Bit_StepperDual
+    //% block="Dual Stepper Motor B1 |%degree1|° and B2 |%degree2|°"
     //% weight=88
+    //% blockGap=10
     export function StepperDual(degree1: number, degree2: number): void {
         if (!initialized) {
             initPCA9685()
@@ -491,10 +505,13 @@ namespace BuildBit {
         MotorStopAll()
     }
 
-    //% blockId=SuperBit_PWMOFF block="PWM OFF|%index"
+    /*
+    //% blockId=SuperBit_PWMOFF 
+    //% block="PWM OFF|%index"
     //% weight=87
     export function PWMOFF(index: number): void {
         setPwm(index, 0, 0);
     }
+    */
 
 }
