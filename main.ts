@@ -243,15 +243,31 @@ namespace BuildBit {
     //===========================================================================
 
     //% subcategory=Motor
-    //% blockId=Build-Bit-Servo 
-    //% block="Servo |%num| to value |%value|°"
+    //% blockId=Build-Bit-Servo-180 
+    //% block="Servo(180) |%num| to value |%value|°"
     //% weight=89
     //% blockGap=10
-    //% num.min=1 num.max=4 value.min=0 value.max=180
-    export function Servo(num: enServo, value: number): void {
+    //% num.min=1 num.max=8 value.min=0 value.max=180
+    export function Servo180(num: enServo, value: number): void {
 
         // 50hz: 20,000 us
         let us = (value * 1800 / 180 + 600); // 0.6 ~ 2.4
+        let pwm = us * 4096 / 20000;
+        setPwm(num, 0, pwm);
+
+    }
+
+    //% subcategory=Motor
+    //% blockId=Build-Bit-Servo-270 
+    //% block="Servo(270) |%num| to value |%value|°"
+    //% weight=88
+    //% blockGap=10
+    //% num.min=1 num.max=8 value.min=0 value.max=270
+    export function Servo270(num: enServo, value: number): void {
+
+        // 50hz: 20,000 us
+        let newvalue = Math.map(value, 0, 270, 0, 180);
+        let us = (newvalue * 1800 / 180 + 600); // 0.6 ~ 2.4
         let pwm = us * 4096 / 20000;
         setPwm(num, 0, pwm);
 
@@ -265,7 +281,7 @@ namespace BuildBit {
     //% subcategory=Motor
     //% blockId=Build-Bit-MotorStopAll
     //% block="Motor Stop All"
-    //% weight= 88
+    //% weight= 87
     //% blockGap=10
     export function MotorStopAll(): void {
         if (!initialized) {
@@ -287,7 +303,7 @@ namespace BuildBit {
     //% subcategory=Motor
     //% blockId=Build-Bit-MotorRun 
     //% block="Motor |%index| run |%dir| at speed |%speed"
-    //% weight=87
+    //% weight=86
     //% blockGap=10
     //% speed.min=0 speed.max=100
     export function MotorRun(index: enMotors, dir: enPos, speed: number): void {
@@ -345,7 +361,7 @@ namespace BuildBit {
     //% subcategory=Motor
     //% blockId=Build-Bit-MotorRunDual
     //% block="Motor |%index1| and |%index2| run |%dir| at speed |%speed|"
-    //% weight=86
+    //% weight=85
     //% blockGap=10
     //% speed.min=0 speed.max=100
     //% name.fieldEditor="gridpicker" name.fieldOptions.columns=20
@@ -431,7 +447,7 @@ namespace BuildBit {
     //% subcategory=Motor
     //% blockId=Build-Bit-StepperDegree
     //% block="Stepper Motor |%index| turn |%degree|°"
-    //% weight=85
+    //% weight=84
     //% blockGap=10
     export function StepperDegree(index: enSteppers, degree: number): void {
         if (!initialized) {
@@ -446,7 +462,7 @@ namespace BuildBit {
     //% subcategory=Motor
     //% blockId=Build-Bit-StepperTurn
     //% block="Stepper Motor |%index| turn |%turn| circle"
-    //% weight=84
+    //% weight=83
     //% blockGap=10
     export function StepperTurn(index: enSteppers, turn: enTurns): void {
         let degree = turn;
@@ -456,7 +472,7 @@ namespace BuildBit {
     //% subcategory=Motor
     //% blockId=Build-Bit_StepperDual
     //% block="Dual Stepper Motor B1 |%degree1|° and B2 |%degree2|°"
-    //% weight=83
+    //% weight=82
     //% blockGap=10
     export function StepperDual(degree1: number, degree2: number): void {
         if (!initialized) {
