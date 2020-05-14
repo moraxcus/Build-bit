@@ -60,6 +60,8 @@ namespace BuildBit {
     let initialized = false
     let BBStrip: neopixel.Strip;
 
+    let tx = 0;
+    let rx = 0;
 
     //===========================================================================
     //  Motor
@@ -494,6 +496,44 @@ namespace BuildBit {
         }
 
         MotorStopAll()
+    }
+
+    //===========================================================================
+    //  Sensor
+    //===========================================================================
+
+    //% subcategory=Sensor
+    //% blockId=Build-Bit-Ultrasonic-SetPort
+    //% block="Set Ultrasonic TX Port |%Trig| RX Port |%Echo|"
+    //% weight=79
+    //% blockGap=10
+    export function SetUltrasonic(Trig: DigitalPin, Echo: DigitalPin): void {
+
+        // Set Port
+        let tx = Trig;
+        let rx = Echo;
+        
+    }
+
+    //% subcategory=Sensor
+    //% blockId=Build-Bit-Ultrasonic_read
+    //% block="Ultrasonic distance (cm)"
+    //% weight=78
+    //% blockGap=10
+    //% name.fieldEditor="gridpicker" name.fieldOptions.columns=4
+    export function Ultrasonic() : number {
+
+        // send pulse
+        pins.setPull(tx, PinPullMode.PullNone);
+        pins.digitalWritePin(tx, 0);
+        control.waitMicros(2);
+        pins.digitalWritePin(tx, 1);
+        control.waitMicros(15);
+        pins.digitalWritePin(tx, 0);
+
+        // read pulse
+        let d = pins.pulseIn(rx, PulseValue.High, 23200);
+        return Math.floor(d / 58);
     }
 
 }
