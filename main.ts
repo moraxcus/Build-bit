@@ -4,6 +4,10 @@
     Neopixel            P12
     Buzzer              P0
  
+  I2C 
+    SDA                 P20
+    SCL                 P19
+
   Motor
     Servo_S1            IIC_Channel 3
     Servo_S2            IIC_Channel 4
@@ -59,10 +63,23 @@ namespace BuildBit {
 
     let initialized = false
     let BBStrip: neopixel.Strip;
+    
+    let lineSensorPins = [0, 0, 0, 0];
+    // let lineSensorPins_1 = 0;
+    // let lineSensorPins_2 = 0;
+    // let lineSensorPins_3 = 0;
+    // let lineSensorPins_4 = 0;
 
-    let tx = 0;
-    let rx = 0;
-
+    export enum LineSensors {
+        //% block="S1"
+        LS1 = 0,
+        //% block="S2"
+        LS2 = 1,
+        //% block="S3"
+        LS3 = 2,
+        //% block="S4"
+        LS4 = 3
+    }
     //===========================================================================
     //  Motor
     //===========================================================================
@@ -277,7 +294,7 @@ namespace BuildBit {
 
 
     //===========================================================================
-    //  Motor
+    //  Motor - DC Motor
     //===========================================================================
 
     //% subcategory=Motor
@@ -443,7 +460,7 @@ namespace BuildBit {
     }
 
     //===========================================================================
-    //  Stepper Motor
+    //  Motor - Stepper
     //===========================================================================
 
     //% subcategory=Motor
@@ -502,17 +519,19 @@ namespace BuildBit {
     //  Sensor
     //===========================================================================
 
+    let tx = 0;
+    let rx = 0;
+
     //% subcategory=Sensor
     //% blockId=Build-Bit-Ultrasonic-SetPort
-    //% block="Set Ultrasonic TX Port |%Trig| RX Port |%Echo|"
+    //% block="Set Ultrasonic Trig Port |%Trig| Echo Port |%Echo|"
     //% weight=79
     //% blockGap=10
     export function SetUltrasonic(Trig: DigitalPin, Echo: DigitalPin): void {
 
         // Set Port
-        let tx = Trig;
-        let rx = Echo;
-        
+        tx = Trig;
+        rx = Echo;
     }
 
     //% subcategory=Sensor
@@ -521,19 +540,49 @@ namespace BuildBit {
     //% weight=78
     //% blockGap=10
     //% name.fieldEditor="gridpicker" name.fieldOptions.columns=4
-    export function Ultrasonic() : number {
+    export function Ultrasonic(): number {
 
         // send pulse
-        pins.setPull(tx, PinPullMode.PullNone);
-        pins.digitalWritePin(tx, 0);
+        pins.setPull(<DigitalPin>tx, PinPullMode.PullNone);
+        pins.digitalWritePin(<DigitalPin>tx, 0);
         control.waitMicros(2);
-        pins.digitalWritePin(tx, 1);
+        pins.digitalWritePin(<DigitalPin>tx, 1);
         control.waitMicros(15);
-        pins.digitalWritePin(tx, 0);
+        pins.digitalWritePin(<DigitalPin>tx, 0);
 
         // read pulse
-        let d = pins.pulseIn(rx, PulseValue.High, 23200);
+        let d = pins.pulseIn(<DigitalPin>rx, PulseValue.High, 23200);
         return Math.floor(d / 58);
+    }
+
+    //==============================================
+    //  Line Sensors
+    //==============================================
+
+    //% subcategory=Sensor
+    //% blockId=Build-Bit-LineSensor-SetPort
+    //% block="Set LineSensor: S1|%sensor1|S2|%sensor2|S3|%sensor3|S4|%sensor4|"
+    //% weight=77
+    //% blockGap=10
+    export function SetLSPins(S1: DigitalPin, S2: DigitalPin, S3: DigitalPin, S4: DigitalPin): void {
+
+        // Set Port
+        lineSensorPins = [S1, S2, S3, S4];
+        // lineSensorPins_1 = S1;
+        // lineSensorPins_2 = S2;
+        // lineSensorPins_3 = S3;
+        // lineSensorPins_4 = S4;
+    }
+
+    //% subcategory=Sensor
+    //% blockId=Build-Bit-LineSensor-DetectLine
+    //% block="|%Lsensor| sensor detects line"
+    //% weight=76
+    //% blockGap=10
+    export function LineSensorDetectsLine(Lsensor: LineSensors): boolean {
+
+        //return (pins.digitalReadPin(<DigitalPin>sensor) ? true : false)
+        return (pins.digitalReadPin(<DigitalPin>lineSensorPins[Lsensor]) ? true : false)
     }
 
 }
