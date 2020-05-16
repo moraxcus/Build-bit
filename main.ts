@@ -63,12 +63,8 @@ namespace BuildBit {
 
     let initialized = false
     let BBStrip: neopixel.Strip;
-    
+
     let lineSensorPins = [0, 0, 0, 0];
-    // let lineSensorPins_1 = 0;
-    // let lineSensorPins_2 = 0;
-    // let lineSensorPins_3 = 0;
-    // let lineSensorPins_4 = 0;
 
     export enum LineSensors {
         //% block="S1"
@@ -542,16 +538,24 @@ namespace BuildBit {
     //% name.fieldEditor="gridpicker" name.fieldOptions.columns=4
     export function Ultrasonic(): number {
 
-        // send pulse
-        pins.setPull(<DigitalPin>tx, PinPullMode.PullNone);
-        pins.digitalWritePin(<DigitalPin>tx, 0);
-        control.waitMicros(2);
-        pins.digitalWritePin(<DigitalPin>tx, 1);
-        control.waitMicros(15);
-        pins.digitalWritePin(<DigitalPin>tx, 0);
+        let d = 0;
+        let i = 0;
 
-        // read pulse
-        let d = pins.pulseIn(<DigitalPin>rx, PulseValue.High, 23200);
+        for (let i = 0; i < 10; ++i)    {
+            // send pulse
+            pins.setPull(<DigitalPin>tx, PinPullMode.PullNone);
+            pins.digitalWritePin(<DigitalPin>tx, 0);
+            control.waitMicros(2);
+            pins.digitalWritePin(<DigitalPin>tx, 1);
+            control.waitMicros(15);
+            pins.digitalWritePin(<DigitalPin>tx, 0);
+
+            // read pulse
+            i = pins.pulseIn(<DigitalPin>rx, PulseValue.High, 23200);
+            d = d + i;
+        }
+
+        d = d / 10; 
         return Math.floor(d / 58);
     }
 
@@ -568,10 +572,7 @@ namespace BuildBit {
 
         // Set Port
         lineSensorPins = [S1, S2, S3, S4];
-        // lineSensorPins_1 = S1;
-        // lineSensorPins_2 = S2;
-        // lineSensorPins_3 = S3;
-        // lineSensorPins_4 = S4;
+
     }
 
     //% subcategory=Sensor
