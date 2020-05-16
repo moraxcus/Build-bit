@@ -66,6 +66,10 @@ namespace BuildBit {
 
     let lineSensorPins = [0, 0, 0, 0];
 
+    //===========================================================================
+    //  enum
+    //===========================================================================
+
     export enum LineSensors {
         //% block="S1"
         LS1 = 0,
@@ -76,34 +80,16 @@ namespace BuildBit {
         //% block="S4"
         LS4 = 3
     }
-    //===========================================================================
-    //  Motor
-    //===========================================================================
 
     export enum enSteppers {
         B1 = 0x1,
         B2 = 0x2
     }
     export enum enPos {
-        //% blockId="forward" block="Forward"
-        forward = 1,
-        //% blockId="reverse" block="Reverse"
-        reverse = 2
-    }
-
-    export enum enPos2 {
-        //% blockId="forward" block="Forward"
-        forward = 1,
-        //% blockId="reverse" block="Reverse"
-        reverse = 2,
-        //% blockId="left" block="Turn Left"
-        turn_left = 3,
-        //% blockId="right" block="Turn Right"
-        turn_right = 4,
-        //% blockId="rot-left" block="Rotate Left"
-        rot_left = 5,
-        //% blockId="rot-right" block="Rotate Right"
-        rot_right = 6
+        //% blockId="ClockWise" block="ClockWise"
+        cw = 1,
+        //% blockId="Counter-Clockwise" block="Counter-Clockwise"
+        ccw = 2
     }
 
     export enum enTurns {
@@ -124,7 +110,6 @@ namespace BuildBit {
     }
 
     export enum enServo {
-
         S1 = 0,
         S2,
         S3,
@@ -140,6 +125,25 @@ namespace BuildBit {
         M3 = 12,
         M4 = 14
     }
+
+    // export enum enPos2 {
+    //     //% blockId="forward" block="Forward"
+    //     forward = 1,
+    //     //% blockId="reverse" block="Reverse"
+    //     reverse = 2,
+    //     //% blockId="left" block="Turn Left"
+    //     turn_left = 3,
+    //     //% blockId="right" block="Turn Right"
+    //     turn_right = 4,
+    //     //% blockId="rot-left" block="Rotate Left"
+    //     rot_left = 5,
+    //     //% blockId="rot-right" block="Rotate Right"
+    //     rot_right = 6
+    // }
+
+    //===========================================================================
+    //  I2C
+    //===========================================================================
 
     function i2cwrite(addr: number, reg: number, value: number) {
         let buf = pins.createBuffer(2)
@@ -233,7 +237,7 @@ namespace BuildBit {
 
 
     //===========================================================================
-    //  LED
+    //  Neopixel LED
     //===========================================================================
 
     /**
@@ -252,6 +256,173 @@ namespace BuildBit {
         }
         return BBStrip;
     }
+
+    //===========================================================================
+    //  Motor - DC Motor
+    //===========================================================================
+
+    //% subcategory=Motor
+    //% blockId=Build-Bit-MotorStopAll
+    //% block="Motor Stop All"
+    //% weight= 87
+    //% blockGap=10
+    export function MotorStopAll(): void {
+        if (!initialized) {
+            initPCA9685()
+        }
+
+        stopMotor(enMotors.M1);
+        stopMotor(enMotors.M2);
+        stopMotor(enMotors.M3);
+        stopMotor(enMotors.M4);
+
+    }
+
+    /**
+     * Motor move.
+     * Speed = 0 - 100
+     * @param speed selected speed, eg: 30
+     */
+    //% subcategory=Motor
+    //% blockId=Build-Bit-MotorRun 
+    //% block="Motor |%index| run |%dir| at speed |%speed|"
+    //% weight=86
+    //% blockGap=10
+    //% speed.min=0 speed.max=100
+    export function MotorRun(index: enMotors, dir: enPos, speed: number): void {
+        if (!initialized) {
+            initPCA9685();
+        }
+
+        speed = Math.clamp(0, 100, speed);
+        speed = Math.abs(4095 * (speed / 100));
+
+        if (speed >= 4096) {
+            speed = 4095;
+        }
+        if (speed <= 350) {
+            speed = 350;
+        }
+
+        let a = index;
+        let b = index + 1;
+
+        if (a > 10) {
+            if (dir == 1) {
+                setPwm(a, 0, speed);
+                setPwm(b, 0, 0);
+            } else if (dir == 2) {
+                setPwm(a, 0, 0);
+                setPwm(b, 0, speed);
+            }
+            else {
+                setPwm(a, 0, 0);
+                setPwm(b, 0, 0);
+            }
+        }
+        else {
+            if (dir == 1) {
+                setPwm(b, 0, speed);
+                setPwm(a, 0, 0);
+            } else if (dir == 2) {
+                setPwm(b, 0, 0);
+                setPwm(a, 0, speed);
+            }
+            else {
+                setPwm(a, 0, 0);
+                setPwm(b, 0, 0);
+            }
+        }
+
+    }
+
+    // /**
+    //  * Motor move.
+    //  * Speed = 0 - 100
+    //  * @param speed selected speed, eg: 30
+    //  */
+    // //% subcategory=Motor
+    // //% blockId=Build-Bit-MotorRunDual
+    // //% block="Motor |%index1| and |%index2| run |%dir| at speed |%speed|"
+    // //% weight=85
+    // //% blockGap=10
+    // //% speed.min=0 speed.max=100
+    // //% name.fieldEditor="gridpicker" name.fieldOptions.columns=20
+    // export function MotorRunDual(index1: enMotors, index2: enMotors, dir: enPos, speed: number): void {
+    //     if (!initialized) {
+    //         initPCA9685()
+    //     }
+
+    //     speed = Math.clamp(0, 100, speed)
+    //     speed = Math.abs(4095 * (speed / 100))
+
+    //     if (speed >= 4096) {
+    //         speed = 4095
+    //     }
+    //     if (speed <= 350) {
+    //         speed = 350
+    //     }
+
+    //     let a = index1
+    //     let b = index1 + 1
+    //     let c = index2
+    //     let d = index2 + 1
+
+    //     if (a > 10) {
+    //         if (dir == 1) {
+    //             setPwm(a, 0, speed)
+    //             setPwm(b, 0, 0)
+    //         } else if (dir == 2) {
+    //             setPwm(a, 0, 0)
+    //             setPwm(b, 0, speed)
+    //         }
+    //         else {
+    //             setPwm(a, 0, 0)
+    //             setPwm(b, 0, 0)
+    //         }
+    //     }
+    //     else {
+    //         if (dir == 1) {
+    //             setPwm(b, 0, speed)
+    //             setPwm(a, 0, 0)
+    //         } else if (dir == 2) {
+    //             setPwm(b, 0, 0)
+    //             setPwm(a, 0, speed)
+    //         }
+    //         else {
+    //             setPwm(a, 0, 0)
+    //             setPwm(b, 0, 0)
+    //         }
+    //     }
+
+    //     if (c > 10) {
+    //         if (dir == 1) {
+    //             setPwm(c, 0, speed)
+    //             setPwm(d, 0, 0)
+    //         } else if (dir == 2) {
+    //             setPwm(c, 0, 0)
+    //             setPwm(d, 0, speed)
+    //         }
+    //         else {
+    //             setPwm(c, 0, 0)
+    //             setPwm(d, 0, 0)
+    //         }
+    //     }
+    //     else {
+    //         if (dir == 1) {
+    //             setPwm(d, 0, speed)
+    //             setPwm(c, 0, 0)
+    //         } else if (dir == 2) {
+    //             setPwm(d, 0, 0)
+    //             setPwm(c, 0, speed)
+    //         }
+    //         else {
+    //             setPwm(c, 0, 0)
+    //             setPwm(d, 0, 0)
+    //         }
+    //     }
+    // }
+
 
     //===========================================================================
     //  Motor - Servo
@@ -290,172 +461,6 @@ namespace BuildBit {
 
 
     //===========================================================================
-    //  Motor - DC Motor
-    //===========================================================================
-
-    //% subcategory=Motor
-    //% blockId=Build-Bit-MotorStopAll
-    //% block="Motor Stop All"
-    //% weight= 87
-    //% blockGap=10
-    export function MotorStopAll(): void {
-        if (!initialized) {
-            initPCA9685()
-        }
-
-        stopMotor(enMotors.M1);
-        stopMotor(enMotors.M2);
-        stopMotor(enMotors.M3);
-        stopMotor(enMotors.M4);
-
-    }
-
-    /**
-     * Motor move.
-     * Speed = 0 - 100
-     * @param speed selected speed, eg: 30
-     */
-    //% subcategory=Motor
-    //% blockId=Build-Bit-MotorRun 
-    //% block="Motor |%index| run |%dir| at speed |%speed|"
-    //% weight=86
-    //% blockGap=10
-    //% speed.min=0 speed.max=100
-    export function MotorRun(index: enMotors, dir: enPos, speed: number): void {
-        if (!initialized) {
-            initPCA9685()
-        }
-
-        speed = Math.clamp(0, 100, speed)
-        speed = Math.abs(4095 * (speed / 100))
-
-        if (speed >= 4096) {
-            speed = 4095
-        }
-        if (speed <= 350) {
-            speed = 350
-        }
-
-        let a = index
-        let b = index + 1
-
-        if (a > 10) {
-            if (dir == 1) {
-                setPwm(a, 0, speed)
-                setPwm(b, 0, 0)
-            } else if (dir == 2) {
-                setPwm(a, 0, 0)
-                setPwm(b, 0, speed)
-            }
-            else {
-                setPwm(a, 0, 0)
-                setPwm(b, 0, 0)
-            }
-        }
-        else {
-            if (dir == 1) {
-                setPwm(b, 0, speed)
-                setPwm(a, 0, 0)
-            } else if (dir == 2) {
-                setPwm(b, 0, 0)
-                setPwm(a, 0, speed)
-            }
-            else {
-                setPwm(a, 0, 0)
-                setPwm(b, 0, 0)
-            }
-        }
-
-    }
-
-    /**
-     * Motor move.
-     * Speed = 0 - 100
-     * @param speed selected speed, eg: 30
-     */
-    //% subcategory=Motor
-    //% blockId=Build-Bit-MotorRunDual
-    //% block="Motor |%index1| and |%index2| run |%dir| at speed |%speed|"
-    //% weight=85
-    //% blockGap=10
-    //% speed.min=0 speed.max=100
-    //% name.fieldEditor="gridpicker" name.fieldOptions.columns=20
-    export function MotorRunDual(index1: enMotors, index2: enMotors, dir: enPos, speed: number): void {
-        if (!initialized) {
-            initPCA9685()
-        }
-
-        speed = Math.clamp(0, 100, speed)
-        speed = Math.abs(4095 * (speed / 100))
-
-        if (speed >= 4096) {
-            speed = 4095
-        }
-        if (speed <= 350) {
-            speed = 350
-        }
-
-        let a = index1
-        let b = index1 + 1
-        let c = index2
-        let d = index2 + 1
-
-        if (a > 10) {
-            if (dir == 1) {
-                setPwm(a, 0, speed)
-                setPwm(b, 0, 0)
-            } else if (dir == 2) {
-                setPwm(a, 0, 0)
-                setPwm(b, 0, speed)
-            }
-            else {
-                setPwm(a, 0, 0)
-                setPwm(b, 0, 0)
-            }
-        }
-        else {
-            if (dir == 1) {
-                setPwm(b, 0, speed)
-                setPwm(a, 0, 0)
-            } else if (dir == 2) {
-                setPwm(b, 0, 0)
-                setPwm(a, 0, speed)
-            }
-            else {
-                setPwm(a, 0, 0)
-                setPwm(b, 0, 0)
-            }
-        }
-
-        if (c > 10) {
-            if (dir == 1) {
-                setPwm(c, 0, speed)
-                setPwm(d, 0, 0)
-            } else if (dir == 2) {
-                setPwm(c, 0, 0)
-                setPwm(d, 0, speed)
-            }
-            else {
-                setPwm(c, 0, 0)
-                setPwm(d, 0, 0)
-            }
-        }
-        else {
-            if (dir == 1) {
-                setPwm(d, 0, speed)
-                setPwm(c, 0, 0)
-            } else if (dir == 2) {
-                setPwm(d, 0, 0)
-                setPwm(c, 0, speed)
-            }
-            else {
-                setPwm(c, 0, 0)
-                setPwm(d, 0, 0)
-            }
-        }
-    }
-
-    //===========================================================================
     //  Motor - Stepper
     //===========================================================================
 
@@ -466,12 +471,12 @@ namespace BuildBit {
     //% blockGap=10
     export function StepperDegree(index: enSteppers, degree: number): void {
         if (!initialized) {
-            initPCA9685()
+            initPCA9685();
         }
         setStepper(index, degree > 0);
         degree = Math.abs(degree);
         basic.pause(10240 * degree / 360);
-        MotorStopAll()
+        MotorStopAll();
     }
 
     //% subcategory=Motor
@@ -491,7 +496,7 @@ namespace BuildBit {
     //% blockGap=10
     export function StepperDual(degree1: number, degree2: number): void {
         if (!initialized) {
-            initPCA9685()
+            initPCA9685();
         }
         setStepper(1, degree1 > 0);
         setStepper(2, degree2 > 0);
@@ -508,7 +513,7 @@ namespace BuildBit {
             basic.pause(10240 * (degree2 - degree1) / 360);
         }
 
-        MotorStopAll()
+        MotorStopAll();
     }
 
     //===========================================================================
@@ -540,7 +545,7 @@ namespace BuildBit {
         let d = 0;
         let i = 0;
 
-        for (let i = 0; i < 10; ++i)    {
+        for (let i = 0; i < 10; ++i) {
             // send pulse
             pins.setPull(<DigitalPin>tx, PinPullMode.PullNone);
             pins.digitalWritePin(<DigitalPin>tx, 0);
@@ -554,7 +559,7 @@ namespace BuildBit {
             d = d + i;
         }
 
-        d = d / 10; 
+        d = d / 10;
         return Math.floor(d / 58);
     }
 
@@ -564,7 +569,7 @@ namespace BuildBit {
 
     //% subcategory=Sensor
     //% blockId=Build-Bit-LineSensor-SetPort
-    //% block="Set Line Sensor: S1|%sensor1|S2|%sensor2|S3|%sensor3|S4|%sensor4|"
+    //% block="Set LineSensor: S1|%sensor1|S2|%sensor2|S3|%sensor3|S4|%sensor4|"
     //% weight=77
     //% blockGap=10
     export function SetLSPins(S1: DigitalPin, S2: DigitalPin, S3: DigitalPin, S4: DigitalPin): void {
@@ -582,7 +587,7 @@ namespace BuildBit {
     export function LineSensorDetectsLine(Lsensor: LineSensors): boolean {
 
         //return (pins.digitalReadPin(<DigitalPin>sensor) ? true : false)
-        return (pins.digitalReadPin(<DigitalPin>lineSensorPins[Lsensor]) ? true : false)
+        return (pins.digitalReadPin(<DigitalPin>lineSensorPins[Lsensor]) ? true : false);
     }
 
 }
