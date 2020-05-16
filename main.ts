@@ -317,7 +317,7 @@ namespace BuildBit {
      */
     //% subcategory=Motor
     //% blockId=Build-Bit-MotorRun 
-    //% block="Motor |%index| run |%dir| at speed |%speed"
+    //% block="Motor |%index| run |%dir| at speed |%speed|"
     //% weight=86
     //% blockGap=10
     //% speed.min=0 speed.max=100
@@ -535,7 +535,6 @@ namespace BuildBit {
     //% block="Ultrasonic distance (cm)"
     //% weight=78
     //% blockGap=10
-    //% name.fieldEditor="gridpicker" name.fieldOptions.columns=4
     export function Ultrasonic(): number {
 
         let d = 0;
@@ -565,7 +564,7 @@ namespace BuildBit {
 
     //% subcategory=Sensor
     //% blockId=Build-Bit-LineSensor-SetPort
-    //% block="Set LineSensor: S1|%sensor1|S2|%sensor2|S3|%sensor3|S4|%sensor4|"
+    //% block="Set Line Sensor: S1|%sensor1|S2|%sensor2|S3|%sensor3|S4|%sensor4|"
     //% weight=77
     //% blockGap=10
     export function SetLSPins(S1: DigitalPin, S2: DigitalPin, S3: DigitalPin, S4: DigitalPin): void {
