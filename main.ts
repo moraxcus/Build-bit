@@ -559,7 +559,6 @@ namespace BuildBit {
         let length = (list[1] + list[2] + list[3]) / 3;
         return Math.floor(length);
     }
-    }
 
     //==============================================
     //  Line Sensors
