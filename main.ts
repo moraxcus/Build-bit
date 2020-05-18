@@ -86,9 +86,9 @@ namespace BuildBit {
         B2 = 0x2
     }
     export enum enPos {
-        //% blockId="ClockWise" block="ClockWise"
+        //% blockId="ClockWise" block="Forward" // ClockWise
         cw = 1,
-        //% blockId="Counter-Clockwise" block="Counter-Clockwise"
+        //% blockId="Counter-Clockwise" block="Reverse" // Counter-Clockwise
         ccw = 2
     }
 
