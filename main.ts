@@ -542,11 +542,9 @@ namespace BuildBit {
     //% blockGap=10
     export function Ultrasonic(): number {
 
-        let d = 0;
-        let i = 0;
-
-        for (let i = 0; i < 10; ++i) {
-            // send pulse
+        // send pulse
+        let list: Array<number> = [0, 0, 0, 0, 0];
+        for (let i = 0; i < 5; i++) {
             pins.setPull(<DigitalPin>tx, PinPullMode.PullNone);
             pins.digitalWritePin(<DigitalPin>tx, 0);
             control.waitMicros(2);
@@ -554,13 +552,13 @@ namespace BuildBit {
             control.waitMicros(15);
             pins.digitalWritePin(<DigitalPin>tx, 0);
 
-            // read pulse
-            i = pins.pulseIn(<DigitalPin>rx, PulseValue.High, 23200);
-            d = d + i;
+            let d = pins.pulseIn(<DigitalPin>rx, PulseValue.High, 43200);
+            list[i] = Math.floor(d / 40)
         }
-
-        d = d / 10;
-        return Math.floor(d / 58);
+        list.sort();
+        let length = (list[1] + list[2] + list[3]) / 3;
+        return Math.floor(length);
+    }
     }
 
     //==============================================
@@ -587,7 +585,7 @@ namespace BuildBit {
     export function LineSensorDetectsLine(Lsensor: LineSensors): boolean {
 
         //return (pins.digitalReadPin(<DigitalPin>sensor) ? true : false)
-        return (pins.digitalReadPin(<DigitalPin>lineSensorPins[Lsensor]) ? true : false);
+        return (pins.digitalReadPin(<DigitalPin>lineSensorPins[Lsensor]) ? false : true);
     }
 
 }
